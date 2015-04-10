@@ -55,10 +55,15 @@ class AppSession(ApplicationSession):
         reg = yield self.register(add2, 'com.example.add2')
         print("procedure add2() registered: {}".format(reg))
 
+        def newSSID(ssid, passwd):
+            return "received new ssid: " + ssid + " and password: " + passwd
+        reg = yield self.register(newSSID, 'com.example.newSSID')
+        print("procedure newSSID() registered: {}".format(reg))
+
         # PUBLISH and CALL every second .. forever
         #
         counter = 0
-        while True:
+        while False:
 
             # PUBLISH an event
             #
