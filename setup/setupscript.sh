@@ -24,7 +24,7 @@ generateRandomNumber () {
 }
 
 #NAME="opentron" # uncomment this to ignore the fancy renaming
-NAME="opentron$(generateRandomNUmber)"
+NAME="opentron$(generateRandomNumber)"
 
 setHostname() {
   echo "Using hostname ${NAME}.local"
