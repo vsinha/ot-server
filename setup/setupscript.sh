@@ -37,6 +37,7 @@ setHostname() {
 }
 
 setupInterfaceConfigFiles() {
+  mv /etc/network/interfaces /etc/network/interfaces.bak
   # insert two modes of /etc/network/interfaces:
   # interfaces.broadcast for broadcasting a network
   echo "Inserting /etc/network/interfaces.broadcast"
