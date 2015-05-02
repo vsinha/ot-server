@@ -2,67 +2,30 @@
 <html>
 
 <head>
-  <title>React &amp; Web Socket Example</title>
+  <title>Opentrons Web Interface Example</title>
 </head>
 
 <body>
-  <div id="app"></div>
-
-  <script type="text/javascript" src="react.min.js"></script>
-  <script type="text/javascript" src="JSXTransformer.js"></script>
   <script type="text/javascript" src="jquery-1.10.0.min.js"></script>
   <script type="text/javascript" src="autobahn.min.js"></script>
+  <script type="text/javascript" src="ot.js"></script>
 
-  <script type="text/jsx">
-    /** @jsx React.DOM */
+  <div id="socket-form">
+    <input type="text" id="message" />
+    <button>Send To Server</button>
+  </div>
 
-    var FormComponent = React.createClass({
-      render: function() {
-        return (
-          <div id="socket-form">
-            <input type="text" id="name" />
-            <button>Submit</button>
-          </div>
-        )
-      }
-    });
+  </br> </br> 
 
-    var SocketExample = React.createClass({
-      getInitialState: function() {
-        return {
-          name: "No request"
-        }
-      },
-      render: function() {
-        return (
-          <div>
-            <div className="my-name-is">
-              Request: 
-              <br />
-              <br />
-              {this.state.name}
-            </div>
-              <br />
-            <FormComponent />
-          </div>
-        )
-      }
-    });
+  <div id="counterField">Counter value: Nil </div>
 
-    var main = React.render(
-      <SocketExample />,
-      document.getElementById('app')
-    );
-  </script>
+  </br> </br> 
 
-  <!-- include the code to connect to Crossbar and register / call functions -->
-  <script type="text/javascript" src="ot.js">
-  $(document).on('click', '#socket-form button', function() {
-      var newName = $('#socket-form #name').val();
-      connection.session.publish('com.example.change_name', [newName]);
-  });
-  </script>
+  <div id="time-form">
+    <button>Get Current Time</button>
+    <div id="timeField"> </div>
+  </div>
+
 
 </body>
-
 </html>

@@ -1,6 +1,7 @@
 import sys
 import asyncio
 from autobahn.asyncio import wamp, websocket
+import otBackend 
 
 class WampComponent(wamp.ApplicationSession):
 
@@ -16,14 +17,11 @@ class WampComponent(wamp.ApplicationSession):
     @asyncio.coroutine
     def onJoin(self, details):
 
-
         # subscribe to a topic
-        self.received = 0
-        def on_event(i):
-            print("Got event: {}".format(i))
-            self.received += 1
-        sub = yield from self.subscribe(on_event, u'com.opentrons.topic1')
-        print("Subscribed with subscription ID {}".format(sub.id))
+        self.subscribe(otBackend.handleEvent, 'com.opentrons.event')
+
+        # register a function
+        self.register(otBackend.time, 'com.opentrons.time')
 
         # publish to a topic repeatedly
         counter = 0

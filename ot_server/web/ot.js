@@ -1,3 +1,4 @@
+$(document).ready(function() {
 // Set up the URL to connect to 
 var wsuri;
 if (document.location.origin == "file://") {
@@ -17,20 +18,24 @@ var connection = new autobahn.Connection({
 // When we open the connection, subsribe and register any protocols
 connection.onopen = function(session) {
    connection.session.subscribe('com.opentrons.counter', function(str) {
-      main.setState({name: str});
+      $("#counterField").text("Counter value: " + str);
    });
-   connection.session.subscribe('com.opentrons.counter', function(str) {
-      main.setState({name: str});
-   });
+
+  // handle button clicks
+  $(document).on('click', '#socket-form button', function() {
+      var message = $('#socket-form #message').val();
+      connection.session.publish('com.opentrons.event', [message]);
+  });
+
+  $(document).on('click', '#time-form button', function() {
+     console.log("butan");
+     session.call('com.opentrons.time', []).then(
+        function (t) {
+           $("#time-form #timeField").text(t);
+        }
+     );
+  });
 };
 
 connection.open();
-
-// handle button clicks
-$(document).on('click', '#socket-form button', function() {
-   var newName = $('#socket-form #name').val();
-
-   connection.session.publish(
-      'com.opentrons.execremoteProcedure', 
-      [newName]);
 });
