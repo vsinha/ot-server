@@ -1,0 +1,4 @@
+asyncio==3.4.3
+autobahn==0.10.3
+six==1.9.0
+txaio==1.0.0

@@ -10,7 +10,7 @@
          },
          "realms": [
             {
-               "name": "realm1",
+               "name": "ot_realm",
                "roles": [
                   {
                      "name": "anonymous",
@@ -37,7 +37,7 @@
                "paths": {
                   "/": {
                      "type": "static",
-                     "directory": "../ot/web"
+                     "directory": "../ot_server/web"
                   },
                   "ws": {
                      "type": "websocket"
@@ -54,8 +54,8 @@
          "components": [
             {
                "type": "class",
-               "classname": "ot.ot_server.AppSession",
-               "realm": "realm1",
+               "classname": "ot_server.ot_server.AppSession",
+               "realm": "ot_realm",
                "transport": {
                   "type": "websocket",
                   "endpoint": {
