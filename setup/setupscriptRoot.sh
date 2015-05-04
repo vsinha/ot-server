@@ -4,6 +4,7 @@ doUpdatesAndInstalls() {
   apt-get update
   apt-get -y upgrade
   apt-get -y install vim git unzip build-essential python python-dev python-pip python3.4 python3.4-dev python3-pip libssl-dev libffi-dev libsnappy-dev hostapd udhcpd avahi-daemon
+  pip install virtualenvwrapper
 }
 
 # generate a unique ID to prevent naming 
@@ -115,25 +116,6 @@ EOF
  sed -i 's/DHCPD_ENABLED\=\"no\"/#DHCP_ENABLED\=\"no\"/g' /etc/default/udhcpd
 }
 
-setupPythonEnvs() {
-  pip install virtualenvwrapper
-  export WORKON_HOME=$HOME/.virtualenvs
-  source /usr/local/bin/virtualenvwrapper.sh
-  echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bashrc
-  echo "export WORKON_HOME=$HOME/.virtualenvs" >> ~/.bashrc
-
-  echo "Creating and configuring python2 requirements"
-  mkvirtualenv -p python ot2
-  workon ot2
-  pip install -r python2_requirements.txt
-  deactivate
-
-  echo "Creating and configuring python3 requirements"
-  mkvirtualenv -p python3 ot3
-  workon ot3
-  pip install -r python3_requirements.txt
-  deactivate
-}
 
 main() {
   doUpdatesAndInstalls
@@ -141,7 +123,6 @@ main() {
   setupInterfaceConfigFiles
   setupHostAPD
   setupDHCP
-  setupPythonEnvs
 
   echo "done!"
 }
