@@ -87,7 +87,7 @@ EOF
 
   # config specific to the wifi adapter we're using
   # http://www.daveconroy.com/turn-your-raspberry-pi-into-a-wifi-hotspot-with-edimax-nano-usb-ew-7811un-rtl8188cus-chipset/
-  unzip ./hostapd.zip 
+  unzip -o ./hostapd.zip 
   mv /usr/sbin/hostapd /usr/sbin/hostapd.bak
   mv ./hostapd /usr/sbin/hostapd.edimax 
   ln -sf /usr/sbin/hostapd.edimax /usr/sbin/hostapd 
@@ -132,16 +132,6 @@ setupPythonEnvs() {
   mkvirtualenv -p python3 ot3
   workon ot3
   pip install -r python3_requirements.txt
-  deactivate
-}
-
-startCrossbar() {
-  source /usr/local/bin/virtualenvwrapper.sh
-  # switch into ot2 virtualenv
-  workon ot2
-  # start and background crossbar process
-  #crossbar start &
-  # exit the virtualenv
   deactivate
 }
 
