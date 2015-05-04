@@ -18,11 +18,12 @@ class WampComponent(wamp.ApplicationSession):
     def onJoin(self, details):
 
         # subscribe to a topic
-        self.subscribe(otBackend.handleEvent, 'com.opentrons.event')
+        self.subscribe(otBackend.receiveMessage, 'com.opentrons.sendMessage')
 
         # register a function
         self.register(otBackend.time, 'com.opentrons.time')
 
+        '''
         # publish to a topic repeatedly
         counter = 0
         while True:
@@ -30,6 +31,7 @@ class WampComponent(wamp.ApplicationSession):
             self.publish('com.opentrons.counter', counter)
             counter += 1
             yield from asyncio.sleep(1)
+        '''
 
     def onLeave(self, details):
         self.disconnect()

@@ -3,8 +3,8 @@
 import datetime
 
 # test function which takes a value and prints
-def handleEvent(i):
-    print("Got event: {}".format(i))
+def receiveMessage(msg):
+    print("Got event: {}".format(msg))
 
 # test function which returns a value
 def time():

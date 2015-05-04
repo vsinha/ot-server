@@ -1,31 +1,288 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-  <title>Opentrons Web Interface Example</title>
+<title>OT.One</title>
+<link rel="stylesheet" href="./css/main.css">
+<script type="text/javascript" src="./js/autobahn.min.js"></script>
+<script type="text/javascript" src="./js/loadFiles.js"></script>
+<script type="text/javascript" src="./js/createJobFile.js"></script>
+<script type="text/javascript" src="./js/fileSaver.js"></script>
+<script type="text/javascript" src="./js/blob.js"></script>
+<script type="text/javascript" src="./js/main.js"></script>
+<script type="text/javascript" src="./js/debugPop.js"></script>
 </head>
-
 <body>
-  <script type="text/javascript" src="jquery-1.10.0.min.js"></script>
-  <script type="text/javascript" src="autobahn.min.js"></script>
-  <script type="text/javascript" src="ot.js"></script>
+<div class="container">
+	<div class="UI_block" style="width:300px;padding-bottom:0px">
+		<div class="version">
+			Version: 0.2.33
+		</div>
+		<div class="headButtons">
+			<button class="bigButton" id="homeButton" style="width:100%" onclick="home()">HOME</button>
+			<select id="homeMenu">
+				<option value='{"x":true,"y":true,"z":true,"a":true,"b":false}' selected="selected">ALL</option>
+				<option value='{"x":true}'>X</option>
+				<option value='{"y":true}'>Y</option>
+				<option value='{"z":true}'>Z</option>
+				<option value='{"a":true}'>A</option>
+				<option value='{"b":true}'>B</option>
+			</select>
+			<span id="status">Good</span>
+		</div>
+		<div class="headButtons">
+			<button class="bigButton" onclick="pause()">Pause</button>
+			<button class="bigButton" onclick="resume()">Resume</button>
+			<button class="bigButton" onclick="erase()">Erase</button>
+		</div>
+		<div class="inputBlock"  id="dragDiv" style="height:2rem">
+			Drag Protocol Here
+		</div>
+		<div class="inputBlock">
+			<button class="bigButton" id="runButton" style="display:none">Process File</button>
+		</div>
+		<div id="fileName" class="inputBlock">
+		</div>
+		<div class="inputBlock" style="padding-top:1rem">
+			<a href="#" class="popA" onclick="popup('popUpDiv','blanket')">Debug Console</a>
+			<form name="refreshForm">
+				<input type="hidden" name="visited" value="" />
+			</form>
+		</div>
+	</div>
+	<div class="UI_block">
+		<div class="axis_container">
+			<div class="inputBlock">
+				<span class="inputLabel">Position</span></br>
+				X:<strong class="inputLabel" id="position_x" style="margin-right:20px">0.00</strong>
+				Y:<strong class="inputLabel" id="position_y" style="margin-right:20px">0.00</strong>
+				Z:<strong class="inputLabel" id="position_z">0.00</strong>
+			</div>
+			<div class="inputBlock">
+				<span class="inputLabel">Step X-Y</span>
+				<select class="selectStep" type="text" id="stepSize_xy">
+					<option value="100">100mm</option>
+					<option value="50">50mm</option>
+					<option value="20">20mm</option>
+					<option value="10">10mm</option>
+					<option value="5">5mm</option>
+					<option value="2">2mm</option>
+					<option value="1">1mm</option>
+					<option value="0.5">0.5mm</option>
+					<option value="0.2">0.2mm</option>
+					<option value="0.1">0.1mm</option>
+				</select>
+				<span class="inputLabel">Step Z</span>
+				<select class="selectStep" type="text" id="stepSize_z">
+					<option value="20">20mm</option>
+					<option value="10">10mm</option>
+					<option value="5">5mm</option>
+					<option value="2">2mm</option>
+					<option value="1">1mm</option>
+					<option value="0.5">0.5mm</option>
+					<option value="0.2">0.2mm</option>
+					<option value="0.1">0.1mm</option>
+				</select>
+			</div>
+			<div class="buttonContainer">
+				<div class="buttonDiv x_y_div noselect">
+					<span class="jogLabel verticalAlign">
+						X/Y-Axis
+					</span>
+					<button class="stepButton" style="top:0;left:4rem" onclick="step('y',-1)">
+						<div class="uparrow">&#8679;</div>
+					</button>
+					<button class="stepButton" style="top:4rem;left:0" onclick="step('x',-1)">
+						<div class="leftarrow	">&#8679;</div>
+					</button>
+					<button class="stepButton" style="top:4rem;right:0" onclick="step('x',1)">
+						<div class="rightarrow">&#8679;</div>
+					</button>
+					<button class="stepButton" style="bottom:0;left:4rem" onclick="step('y',1)">
+						<div class="downarrow">&#8679;</div>
+					</button>
+				</div>
+				<div class="buttonDiv z_div noselect" style="background-color:rgb(100,27,225)">
+					<span class="jogLabel verticalAlign">
+						Z-Axis
+					</span>
+					<button class="stepButton" style="top:0;left:0" onclick="step('z',-1)">
+						<div class="uparrow">&#8679;</div>
+					</button>
+					<button class="stepButton" style="bottom:0;left:0" onclick="step('z',1)">
+						<div class="downarrow">&#8679;</div>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
-  <div id="socket-form">
-    <input type="text" id="message" />
-    <button>Send To Server</button>
-  </div>
+	<div class="UI_block">
+		<span class="inputLabel">
+			Containers
+		</span>
+		<br />
+		<select id="containerMenu">
+		</select>
+		<br /><br />
+		<span class="inputLabel">Pipette A</span><br />
+		<button class="formButton saveClick" onclick="saveContainer('a')" style="background-color:rgb(27,225,100)">Save</button>
+		<button class="formButton" onclick="movetoContainer('a')">Move</button>
+		<br /><br />
+		<span class="inputLabel">Pipette B</span><br />
+		<button class="formButton saveClick" onclick="saveContainer('b')" style="background-color:rgb(27,225,100)">Save</button>
+		<button class="formButton" onclick="movetoContainer('b')">Move</button>
+	</div>
 
-  </br> </br> 
+	<div class="UI_block">
+		<div class="axis_container">
+			<div class="inputBlock">
+				<span class="inputLabel">Position</span></br>
+				A:<strong class="inputLabel" id="position_a">0.00</strong>
+			</div>
+			<div class="inputBlock">
+				<span class="inputLabel">Step Size</span>
+				<br />
+				<select class="selectStep" type="text" id="stepSize_a">
+					<option value="10">10mm</option>
+					<option value="5">5mm</option>
+					<option value="2">2mm</option>
+					<option value="1">1mm</option>
+					<option value="0.5">0.5mm</option>
+					<option value="0.2">0.2mm</option>
+					<option value="0.1">0.1mm</option>
+				</select>
+			</div>
+			<div class="buttonContainer">
+				<div class="buttonDiv a_div noselect" style="background-color:#444">
+					<span class="jogLabel verticalAlign">
+						A-Pipette
+					</span>
+					<button class="stepButton" style="top:0;left:0" onclick="step('a',-1)">
+						<div class="uparrow">&#8679;</div>
+					</button>
+					<button class="stepButton" style="bottom:0;left:0" onclick="step('a',1)">
+						<div class="downarrow">&#8679;</div>
+					</button>
+				</div>
+			</div>
+			<div class="inputBlock">
+				<span class="inputLabel">Total uL</span></br>
+				<strong class="inputLabel" id="pipetteVolume_a"></strong>
+			</div>
+		</div>
+		<div class="axis_container" style="margin-left:20px">
+			<div class="inputBlock" style="margin-top:-4px">
+				<span class="inputLabel">Top</span><br />
+				<button class="formButton saveClick" onclick="calibrate('a','top');" style="background-color:rgb(27,225,100)">Save</button>
+				<button class="formButton" onclick="movePipette('a','top');">Move</button>
+			</div>
+			<div class="inputBlock" style="margin-top:-4px">
+				<span class="inputLabel">Blowout</span><br />
+				<button class="formButton saveClick" onclick="calibrate('a','blowout');" style="background-color:rgb(27,225,100)">Save</button>
+				<button class="formButton" onclick="movePipette('a','blowout');">Move</button>
+			</div>
+			<div class="inputBlock" style="margin-top:-4px">
+				<span class="inputLabel">Droptip</span><br />
+				<button class="formButton saveClick" onclick="calibrate('a','droptip');" style="background-color:rgb(27,225,100)">Save</button>
+				<button class="formButton" onclick="movePipette('a','droptip');">Move</button>
+			</div>
+			<!-- <div class="inputBlock">
+						<button class="formButton" style="width:100%" onclick="movePipette('a','top');">Top</button>
+					</div> -->
+			<!-- <div class="inputBlock" style="margin-top:-10px">
+						<span class="inputLabel">Top</span><br />
+						<button class="formButton saveClick" onclick="calibrate('a','top');" style="background-color:rgb(27,225,100)">Save</button>
+						<button class="formButton" onclick="movePipette('a','top');">Move</button>
+					</div> -->
+			<div class="inputBlock">
+				<button class="formButton" style="width:100%" onclick="movePipette('a','bottom')">Bottom</button>
+			</div>
+			<div class="inputBlock"  style="margin-top:0px">
+				<!-- <span class="inputLabel">Save Volume</span> -->
+				<select class="selectStep" type="text" id="volume_a">
+					<option value="1000">1000uL</option>
+					<option value="500">500uL</option>
+					<option value="200">200uL</option>
+					<option value="100">100uL</option>
+					<option value="50">50uL</option>
+					<option value="25">25uL</option>
+					<option value="10">10uL</option>
+				</select>
+				<br />
+				<button class="formButton saveClick" onclick="saveVolume('a')" style="background-color:rgb(27,225,100);margin-top:2px">Save</button>
+				<button class="formButton" onclick="moveVolume('a')">Move</button>
+			</div>
+			<!-- <div class="inputBlock">
+						<button class="formButton" style="width:100%;margin-top:5px" onclick="movePipette('a','bottom');">Bottom</button>
+					</div> -->
+			<div class="inputBlock">
+				<button class="formButton" style="width:100%" onclick="shakePipette('a')">Shake</button>
+			</div>
+			<div class="inputBlock" style="margin-top:-10px">
+				<button class="formButton" style="width:100%" onclick="pickupTip('a');">Pickup-Tip</button>
+			</div>
+		</div>
+	</div>
 
-  <div id="counterField">Counter value: Nil </div>
+	<div class="UI_block">
+		<span class="inputLabel">
+			<div class="slotDiv" onclick="moveSlot('A3')">A3</div>
+			<div class="slotDiv" onclick="moveSlot('B3')">B3</div>
+			<div class="slotDiv" onclick="moveSlot('C3')">C3</div>
+			<div class="slotDiv" onclick="moveSlot('D3')">D3</div>
+			<div class="slotDiv" onclick="moveSlot('E3')">E3</div>
+			<br />
+			<div class="slotDiv" onclick="moveSlot('A2')">A2</div>
+			<div class="slotDiv" onclick="moveSlot('B2')">B2</div>
+			<div class="slotDiv" onclick="moveSlot('C2')">C2</div>
+			<div class="slotDiv" onclick="moveSlot('D2')">D2</div>
+			<div class="slotDiv" onclick="moveSlot('E2')">E2</div>
+			<br />
+			<div class="slotDiv" onclick="moveSlot('A1')">A1</div>
+			<div class="slotDiv" onclick="moveSlot('B1')">B1</div>
+			<div class="slotDiv" onclick="moveSlot('C1')">C1</div>
+			<div class="slotDiv" onclick="moveSlot('D1')">D1</div>
+			<div class="slotDiv" onclick="moveSlot('E1')">E1</div>
+		</span>
+	</div>
 
-  </br> </br> 
+	<div id="popContent-debug">
+		<div id="blanket" style="display:none;"></div>
+		<script type="text/javascript">
 
-  <div id="time-form">
-    <button>Get Current Time</button>
-    <div id="timeField"> </div>
-  </div>
+window.addEventListener('resize',blanket_size);
 
+		</script>
+		<div class="UI_block"  id="popUpDiv" style="display:none;background-color:white;height:40rem;padding-left:2rem">
+			<div class="inputBlock">
+				<a href="#" class="popA" onclick="popup('popUpDiv','blanket')" >[X] Close</a>
+			</div>
+			<div class="inputBlock">
+				<span class="inputLabel">Speed XYZ</span>
+				<input class="numberInput" type="text" value="" id="speed_xyz"/>
+				<button class="formButton"  onclick="setSpeed('xyz')">Set Speed</button>
+			</div>
+			<div class="inputBlock">
+				<span class="inputLabel">Speed A </span>
+				<input class="numberInput" type="text" value="" id="speed_a"/>
+				<button class="formButton"  onclick="setSpeed('a')">Set Speed</button>
+			</div>
+			<div class="inputBlock">
+				<span class="inputLabel">Speed B </span>
+				<input class="numberInput" type="text" value="" id="speed_b"/>
+				<button class="formButton"  onclick="setSpeed('b')">Set Speed</button>
+			</div>
+			<div id="debug-console">
+				<div id="debugCommandContainer">
+					<textarea id="debugCommandInput"></textarea>
+					<button class="bigButton" id="debugCommandButton" onclick="sendDebugCommand()">SEND</button>
+				</div>
+				<div id="print">
 
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 </body>
 </html>
