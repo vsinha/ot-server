@@ -4,8 +4,6 @@ doUpdatesAndInstalls() {
   apt-get update
   apt-get -y upgrade
   apt-get -y install vim git unzip python3 python3-pip hostapd udhcpd avahi-daemon
-
-  pip install autobahn[asyncio]
 }
 
 # generate a unique ID to prevent naming 
@@ -33,7 +31,8 @@ setHostname() {
   echo ${NAME} > /etc/hostname
 
   # reread the hostname file
-  /etc/init.d/hostname.sh
+  #/etc/init.d/hostname.sh
+  hostnamectl set-hostname ${NAME}
 }
 
 setupInterfaceConfigFiles() {
@@ -116,12 +115,39 @@ EOF
  sed -i 's/DHCPD_ENABLED\=\"no\"/#DHCP_ENABLED\=\"no\"/g' /etc/default/udhcpd
 }
 
+setupPythonEnvs() {
+  pip install virtualenvwrapper
+
+  echo "Creating and configuring python2 requirements"
+  mkvirtualenv -p python ot2
+  workon ot2
+  pip install -r python2_requirements.txt
+  deactivate
+
+  echo "Creating and configuring python3 requirements"
+  mkvirtualenv -p python3 ot3
+  workon ot3
+  pip install -r python3_requirements.txt
+  deactivate
+}
+
+startCrossbar() {
+  # switch into ot2 virtualenv
+  workon ot2
+  # start and background crossbar process
+  #crossbar start &
+  # exit the virtualenv
+  deactivate
+}
+
 main() {
   doUpdatesAndInstalls
   setHostname
   setupInterfaceConfigFiles
   setupHostAPD
   setupDHCP
+  setupPythonEnvs
+
 
   echo "done!"
 }
