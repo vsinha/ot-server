@@ -3,7 +3,7 @@
 doUpdatesAndInstalls() {
   apt-get update
   apt-get -y upgrade
-  apt-get -y install vim git unzip python3 python3-pip hostapd udhcpd avahi-daemon
+  apt-get -y install vim git unzip build-essential python python-dev python-pip python3.4 python3.4-dev python3-pip libssl-dev libffi-dev libsnappy-dev hostapd udhcpd avahi-daemon
 }
 
 # generate a unique ID to prevent naming 
@@ -117,6 +117,10 @@ EOF
 
 setupPythonEnvs() {
   pip install virtualenvwrapper
+  export WORKON_HOME=$HOME/.virtualenvs
+  source /usr/local/bin/virtualenvwrapper.sh
+  echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bashrc
+  echo "export WORKON_HOME=$HOME/.virtualenvs" >> ~/.bashrc
 
   echo "Creating and configuring python2 requirements"
   mkvirtualenv -p python ot2
@@ -132,6 +136,7 @@ setupPythonEnvs() {
 }
 
 startCrossbar() {
+  source /usr/local/bin/virtualenvwrapper.sh
   # switch into ot2 virtualenv
   workon ot2
   # start and background crossbar process
@@ -147,7 +152,6 @@ main() {
   setupHostAPD
   setupDHCP
   setupPythonEnvs
-
 
   echo "done!"
 }
