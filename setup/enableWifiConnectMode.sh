@@ -2,21 +2,18 @@
 
 main() {
   rm /etc/network/interfaces
-  ln -s /etc/network/interfaces.broadcast /etc/network/interfaces
+  ln -s /etc/network/interfaces.wificonnect /etc/network/interfaces
 
-  #service hostapd stop
-  #service udhcpd stop
+  systemctl stop hostapd 
+  systemctl stop udhcpd
 
-  #update-rc.d hostapd disable
-  #update-rc.d udhcpd disable
+  systemctl disable hostapd
+  systemctl disable udhcpd 
 
-  systemctl hostapd stop
-  systemctl udhcpd stop
+  ifdown wlan0
+  ifup wlan0
 
-  systemctl hostapd disable
-  systemctl udhcpd stop
-
-  reboot now
+  #reboot now
 }
 
 main

@@ -14,21 +14,20 @@ main() {
   rm /etc/network/interfaces
   ln -s /etc/network/interfaces.broadcast /etc/network/interfaces
 
-  #service hostapd start
-  #service udhcpd start
+  systemctl start hostapd 
+  systemctl start udhcpd 
 
-  #update-rc.d hostapd enable
-  #update-rc.d udhcpd enable
-
-  systemctl hostapd stop
-  systemctl udhcpd stop
-
-  systemctl hostapd disable
-  systemctl udhcpd disable
+  systemctl enable hostapd
+  systemctl enable udhcpd
 
   resetNetworkCredentials
 
-  reboot now
+  ifdown wlan0
+  ifup wlan0
+  ifdown eth0
+  ifup eth0
+
+  #reboot now
 }
 
 main
