@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /usr/local/bin/virtualenvwrapper.sh
+
 setupPythonEnvs() {
   export WORKON_HOME=$HOME/.virtualenvs
   source /usr/local/bin/virtualenvwrapper.sh
