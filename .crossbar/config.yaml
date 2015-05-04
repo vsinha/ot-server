@@ -14,6 +14,7 @@ workers:
         /: {directory:  "../ot_server/web", type: static}
         ws: {type: "websocket"}
 - type: container
+  options: {pythonpath: [".."]}
   components: 
     - type: "class"
       classname: "ot_server.ot_server.AppSession"
